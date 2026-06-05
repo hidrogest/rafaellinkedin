@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auditoria de Perfil - Hidrogest (Rafael)</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @keyframes subtle-glow {
+      0%, 100% { box-shadow: 0 4px 20px rgba(10, 102, 194, 0.05); }
+      50% { box-shadow: 0 4px 25px rgba(10, 102, 194, 0.15); }
+    }
+    .animate-glow { 
+      animation: subtle-glow 4s ease-in-out infinite; 
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-[#f0f4f8] via-[#e8f0fe] to-[#f0f4f8] min-h-screen text-slate-800">
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // --- Ícones (SVGs) ---
+    const CheckCircle2 = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+    const MapPin = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>;
+    const Mail = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>;
+    const Phone = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+    const ChevronRight = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"/></svg>;
+    const Info = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+    const ShieldCheck = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>;
+    const XCircle = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>;
+    const CopyIcon = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>;
+    const XIcon = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
+    const ArrowLeft = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>;
+    const Lock = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+    const Globe = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
+    const Clock = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+
+    // --- Componentes Auxiliares ---
+    const CopyInlineButton = ({ text, label = "Copiar", onCopy }) => (
+      <button
+        onClick={(e) => { e.stopPropagation(); onCopy(text); }}
+        className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#0a66c2] to-[#084e96] hover:from-[#084e96] hover:to-[#063970] text-white text-[11px] uppercase tracking-wider font-bold rounded-full transition-all shadow-[0_4px_10px_rgba(10,102,194,0.3)] hover:shadow-[0_6px_15px_rgba(10,102,194,0.4)] hover:-translate-y-0.5 active:scale-95 shrink-0"
+        title={`Copiar ${label.toLowerCase()}`}
+      >
+        <CopyIcon size={14} /> {label}
+      </button>
+    );
+
+    const Highlight = ({ condition, isFixed, label, description, children, block = false, hideFixedBorder = false, position = 'inline', customIcon = null }) => {
+      const [isDismissed, setIsDismissed] = useState(false);
+
+      useEffect(() => {
+        setIsDismissed(false);
+      }, [isFixed]);
+
+      if (!condition) return <>{children}</>;
+
+      const baseStyles = block ? 'block w-full' : 'inline-block';
+      const fixedStyles = hideFixedBorder 
+        ? 'border-transparent bg-transparent'
+        : 'border-green-400 bg-green-50/30 shadow-[0_0_15px_rgba(74,222,128,0.15)]';
+      
+      const warningStyles = 'border-orange-300 bg-orange-50/40';
+      const isOverlay = position.startsWith('overlay');
+      const showBalloon = description && !isDismissed;
+
+      return (
+        <div className={`relative ${baseStyles} ${isOverlay ? '' : (showBalloon ? 'mb-3' : '')}`}>
+          <div className={`
+            ${baseStyles} 
+            transition-all duration-700 ease-in-out
+            ${!isDismissed ? `border-2 border-dashed rounded-xl p-1 -m-1 ${isFixed ? fixedStyles : warningStyles}` : ''}
+          `}>
+            {children}
+          </div>
+          
+          {showBalloon && (
+            <div className={`
+              ${isOverlay ? 'absolute z-40 shadow-xl backdrop-blur-md' : 'relative mt-3 shadow-md hover:shadow-lg'}
+              ${position === 'overlay-top-left' ? 'top-2 left-2 sm:top-4 sm:left-4 w-[calc(100%-50px)] sm:w-auto sm:max-w-[280px]' : ''}
+              ${position === 'overlay-avatar-tooltip' ? 'top-[105%] left-1/2 -translate-x-1/2 sm:top-2 sm:translate-x-0 sm:left-[110%] sm:ml-2 w-52 sm:w-[260px]' : ''}
+              ${!isOverlay ? 'w-full max-w-xl' : ''}
+              p-2.5 sm:p-3 rounded-xl text-left border transition-all duration-500
+              ${isFixed ? 'bg-gradient-to-br from-green-50 to-emerald-50/90 border-green-200 text-green-900' : 'bg-gradient-to-br from-[#FFF9F2] to-orange-50/90 border-orange-200 text-orange-900'}
+            `}>
+              
+              <button 
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsDismissed(true); }}
+                className={`absolute top-1.5 right-1.5 p-1 rounded-full hover:bg-black/5 transition-colors z-50 ${isFixed ? 'text-green-700/50 hover:text-green-800' : 'text-orange-700/50 hover:text-orange-800'}`}
+                title="Fechar dica"
+              >
+                <XIcon size={14} />
+              </button>
+
+              {!isOverlay && (
+                <div className={`absolute -top-2 left-6 w-4 h-4 rotate-45 border-l border-t
+                  ${isFixed ? 'bg-green-50 border-green-200' : 'bg-[#FFF9F2] border-orange-200'}
+                `}></div>
+              )}
+
+              {position === 'overlay-avatar-tooltip' && (
+                <div className={`absolute -top-1.5 left-1/2 -translate-x-1/2 sm:top-6 sm:-left-1.5 sm:translate-x-0 w-3 h-3 rotate-45 border-l border-t sm:border-t-0 sm:border-b
+                  ${isFixed ? 'bg-green-50 border-green-200' : 'bg-[#FFF9F2] border-orange-200'}
+                `}></div>
+              )}
+
+              <div className="relative z-10 flex items-start gap-2 pr-5">
+                <div className="mt-0.5 shrink-0">
+                  {customIcon ? customIcon : (isFixed ? <CheckCircle2 size={16} className="text-green-600" /> : <Info size={16} className="text-orange-500" />)}
+                </div>
+                <div>
+                  <strong className={`block mb-0.5 text-[10px] sm:text-[11px] uppercase tracking-wider font-bold ${isFixed ? 'text-green-700' : 'text-orange-700'}`}>
+                    {label}
+                  </strong>
+                  <span className="text-[12px] sm:text-[13px] leading-snug opacity-90 block">
+                    {description}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    function App() {
+      const [isOptimized, setIsOptimized] = useState(false);
+      const [animateProgress, setAnimateProgress] = useState(false);
+      const [showCopyModal, setShowCopyModal] = useState(false);
+      const [toastMsg, setToastMsg] = useState("");
+
+      // --- DADOS DO RAFAEL ---
+      const photoUrl = "https://drive.google.com/thumbnail?id=1Y1Ru0JtSiboLt-7WHKgzBMO0nbDAB-Py&sz=w800";
+      const fallbackAvatar = "https://ui-avatars.com/api/?name=Rafael+Pereira&size=200&background=0a66c2&color=fff";
+      
+      const bgBefore = "https://placehold.co/1200x360/e2e8f0/64748b?text=Sem+imagem+de+capa";
+      const bgAfter = "https://placehold.co/1200x360/0B3B59/ffffff?text=Capa+Institucional+(Em+Desenvolvimento)";
+
+      const logoHidrogest = "https://drive.google.com/thumbnail?id=1aWt-ZBZIvBdviJ3hoYVExMUoQlFEt15O&sz=w200";
+      const logoComisa = "https://ui-avatars.com/api/?name=Mineração+Comisa&size=200&background=ea580c&color=fff";
+      const logoIETAAM = "https://ui-avatars.com/api/?name=IETAAM&size=200&background=0f766e&color=fff";
+
+      useEffect(() => {
+        setAnimateProgress(false);
+        const timer = setTimeout(() => setAnimateProgress(true), 100);
+        return () => clearTimeout(timer);
+      }, [isOptimized]);
+
+      const handleCopyText = (text) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setToastMsg("Copiado com sucesso!");
+        } catch (err) {
+          setToastMsg("Erro ao copiar.");
+        }
+        document.body.removeChild(textArea);
+        setTimeout(() => setToastMsg(""), 3000);
+      };
+
+      const copyTexts = {
+        nome: "Rafael Pereira dos Santos",
+        titulo: "Técnico em Meio Ambiente | Técnico Hidrometrista Júnior | Marinheiro Fluvial",
+        sobre: "Sou Técnico em Meio Ambiente e atuo como Técnico Hidrometrista Júnior na Hidrogest Engenharia, com experiência no monitoramento hidrossedimentológico e gestão de recursos hídricos.\n\nMinha trajetória na empresa começou como Auxiliar e, com dedicação às operações de campo, conquistei a promoção para Técnico. Tenho atuado ativamente em grandes projetos de recuperação ambiental, realizando medições de descarga líquida e sólida com equipamentos avançados (como o ADCP) nas estações da Vale (Bacia do Rio Paraopeba) e da Samarco/Fundação Renova.\n\nPossuo certificação de Marinheiro Fluvial Auxiliar de Convés (CIR) e foco na precisão das coletas e na segurança operacional em todas as etapas do trabalho em campo.",
+        experienciaHidrogest: "Atuação essencial nas operações de campo e monitoramento hidrossedimentológico em projetos de alta complexidade.\n\n• Monitoramento hidrossedimentológico (medições de descarga líquida e amostragem de sedimentos) em estações na bacia do rio Paraopeba (Brumadinho a Felixlândia) para a Vale.\n• Apoio no monitoramento pluviométrico em estações no ribeirão Ferro Carvão.\n• Campanhas de medições para a Samarco, utilizando perfilador acústico Doppler (ADCP) e molinete fluviométrico.\n• Instalação e operação de estações automáticas e limnimétricas.\n\nHistórico:\n- Técnico Hidrometrista Júnior (Out/2024 - Atual)\n- Auxiliar de Hidrometrista I (Mai/2024 - Out/2024)",
+        experienciaComisa: "Suporte técnico e operacional em atividades laboratoriais.\n\n• Limpeza, organização e preparação de amostras.\n• Auxílio na execução de análises e experimentos físicos de laboratório."
+      };
+
+      const checklistItems = [
+        { id: 1, text: "Tornar o Perfil Público (Desbloquear visualização)", done: isOptimized },
+        { id: 2, text: "Destacar a evolução de Auxiliar para Técnico", done: isOptimized },
+        { id: 3, text: "Adicionar Formação (Técnico em Meio Ambiente)", done: isOptimized },
+        { id: 4, text: "Valorizar a CIR (Marinheiro Fluvial)", done: isOptimized },
+      ];
+
+      return (
+        <div className="min-h-screen font-sans pb-16 selection:bg-blue-200">
+          
+          <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ${toastMsg ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-4 scale-95 pointer-events-none'}`}>
+            <div className="bg-gradient-to-r from-green-600 to-emerald-700 text-white px-6 py-3 rounded-full shadow-2xl shadow-green-900/20 font-bold flex items-center gap-2 border border-green-500/50">
+              <CheckCircle2 size={20} />
+              {toastMsg}
+            </div>
+          </div>
+
+          <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-white shadow-sm">
+            <div className="max-w-5xl mx-auto px-4 py-4">
+
+              <div className="mb-4">
+                <a 
+                  href="https://hidrogest.github.io/hublinkedin/"
+                  className="group relative inline-flex items-center justify-center self-start"
+                  title="Voltar para o Hub de Auditorias"
+                >
+                  <span className="absolute -inset-1 bg-gradient-to-r from-[#0a66c2] via-[#34d399] to-[#0ea5e9] rounded-full blur-md opacity-40 group-hover:opacity-80 animate-pulse transition duration-500"></span>
+                  <span className="relative flex items-center gap-2 px-5 py-2 bg-white/20 backdrop-blur-lg border border-white/60 rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.05)] transition-all duration-300 group-hover:bg-white/40 group-hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)] overflow-hidden">
+                    <span className="absolute inset-x-0 top-0 h-[45%] bg-gradient-to-b from-white/70 to-transparent rounded-t-full pointer-events-none"></span>
+                    <ArrowLeft size={16} className="text-[#0B3B59] group-hover:-translate-x-1 transition-transform duration-300 relative z-10" />
+                    <span className="text-[13px] uppercase tracking-wider font-bold text-[#0B3B59] relative z-10">
+                      Voltar pro Hub
+                    </span>
+                  </span>
+                </a>
+              </div>
+
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                
+                <div className="flex items-center gap-3">
+                  <div className={`p-2.5 rounded-xl shadow-lg transition-colors duration-500 ${isOptimized ? 'bg-gradient-to-br from-[#0B3B59] to-[#062438] text-white shadow-[#0B3B59]/20' : 'bg-gradient-to-br from-gray-500 to-gray-700 text-white shadow-gray-500/20'}`}>
+                    {isOptimized ? <Globe size={24} /> : <Lock size={24} />}
+                  </div>
+                  <div>
+                    <h1 className="font-bold text-xl text-gray-900 leading-tight">Sugestões de Melhoria - LinkedIn</h1>
+                    <p className="text-sm text-gray-500 font-medium">Colaborador: Rafael Pereira dos Santos</p>
+                  </div>
+                </div>
+
+                <div className="flex-1 max-w-md w-full px-4">
+                  <div className="flex justify-between text-sm mb-1.5 font-medium">
+                    <span className="text-gray-600">Visibilidade do Perfil</span>
+                    <span className={isOptimized ? "text-green-600 font-bold" : "text-gray-500 font-bold"}>
+                      {isOptimized ? "Público e Otimizado (100%)" : "Privado / Oculto (10%)"}
+                    </span>
+                  </div>
+                  <div className="h-2.5 w-full bg-gray-200/50 rounded-full overflow-hidden shadow-inner backdrop-blur-sm">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-1000 ease-out relative ${
+                        isOptimized ? "bg-gradient-to-r from-green-400 to-emerald-500 shadow-[0_0_10px_rgba(52,211,154,0.5)]" : "bg-gradient-to-r from-gray-400 to-gray-500"
+                      }`}
+                      style={{ width: animateProgress ? (isOptimized ? "100%" : "10%") : "0%" }}
+                    >
+                      <div className="absolute top-0 left-0 bottom-0 right-0 bg-white/20 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex bg-gray-100/80 backdrop-blur-sm p-1.5 rounded-xl border border-gray-200/60 shadow-inner">
+                  <button
+                    onClick={() => setIsOptimized(false)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
+                      !isOptimized ? 'bg-white shadow-md text-gray-700 ring-1 ring-gray-200/50 scale-100' : 'text-gray-500 hover:text-gray-700 scale-95'
+                    }`}
+                  >
+                    <Lock size={16} className={!isOptimized ? "animate-pulse" : ""} />
+                    Perfil Atual (Privado)
+                  </button>
+                  <button
+                    onClick={() => setIsOptimized(true)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
+                      isOptimized ? 'bg-gradient-to-r from-[#0a66c2] to-[#084e96] shadow-lg shadow-blue-900/20 text-white ring-1 ring-blue-600 scale-100' : 'text-gray-500 hover:text-gray-700 scale-95'
+                    }`}
+                  >
+                    <Globe size={16} />
+                    Desbloqueado
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-5xl mx-auto mt-8 px-4 grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <div className="lg:col-span-1 space-y-4">
+              <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white p-5 sticky top-28">
+                <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Info size={18} className="text-[#0a66c2]" />
+                  Dicas para Você
+                </h3>
+                
+                <ul className="space-y-3">
+                  {checklistItems.map(item => (
+                    <li key={item.id} className="flex items-start gap-3 transition-all duration-300">
+                      <div className={`mt-0.5 rounded-full transition-colors duration-300 shadow-sm ${item.done ? 'text-green-500 bg-green-50' : 'text-gray-300 bg-gray-50'}`}>
+                        <CheckCircle2 size={18} />
+                      </div>
+                      <span className={`text-sm ${item.done ? 'text-gray-800 font-semibold' : 'text-gray-500 font-medium'}`}>
+                        {item.text}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className={`mt-6 p-4 rounded-xl text-sm transition-all duration-500 shadow-sm ${
+                  isOptimized ? 'bg-gradient-to-br from-green-50 to-emerald-50/50 border border-green-200/50 text-green-800' : 'bg-gradient-to-br from-gray-100 to-gray-50/50 border border-gray-200/50 text-gray-800'
+                }`}>
+                  <p className="font-bold mb-1">{isOptimized ? 'Seu Perfil está Pronto!' : 'Oi Rafael, tudo bem?'}</p>
+                  <p className="leading-relaxed">
+                    {isOptimized 
+                      ? 'Ao tornar seu perfil público, adicionei a sua promoção para Técnico e destaquei sua formação e sua habilitação de Marinheiro Fluvial. Você tem uma ótima trajetória para mostrar!' 
+                      : 'Vi que o seu perfil no LinkedIn está privado. Isso significa que as pessoas não conseguem ver suas qualificações. Clique em "Desbloqueado" lá em cima para ver as dicas que preparei!'}
+                  </p>
+                </div>
+
+                <div className={`mt-4 transition-all duration-500 overflow-hidden ${isOptimized ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <button 
+                    onClick={() => setShowCopyModal(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#0B3B59] to-[#082a40] text-white px-4 py-3 rounded-xl font-bold text-sm shadow-lg shadow-[#0B3B59]/20 transition-all hover:scale-[1.02] hover:shadow-xl border border-[#0B3B59]/50"
+                  >
+                    <CopyIcon size={18} />
+                    Ver Textos Prontos
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-3 space-y-4 relative">
+              
+              <div className="absolute -right-2 -top-6 text-sm font-bold text-gray-400 flex items-center gap-1 uppercase tracking-wider">
+                Visão do Perfil <ChevronRight size={14}/>
+              </div>
+
+              <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white overflow-hidden relative transition-all duration-500 hover:shadow-lg">
+                
+                {/* Efeito de overlay escuro se não estiver otimizado (simulando perfil privado) */}
+                {!isOptimized && (
+                  <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-40 flex flex-col items-center justify-center pt-20">
+                    <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-sm text-center border border-gray-100">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400">
+                        <Lock size={32} />
+                      </div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Este perfil é privado</h2>
+                      <p className="text-gray-500 text-sm mb-6">Rafael configurou o perfil para não ser visto por pessoas fora da sua rede. Os recrutadores e a Hidrogest não conseguem ver suas qualificações.</p>
+                      <button 
+                        onClick={() => setIsOptimized(true)}
+                        className="bg-[#0a66c2] text-white px-6 py-2 rounded-full font-bold hover:bg-[#084e96] transition-colors"
+                      >
+                        Tornar Público
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <Highlight 
+                  condition={true} 
+                  isFixed={isOptimized} 
+                  hideFixedBorder={true}
+                  position="overlay-top-left"
+                  label={isOptimized ? "Capa em Desenvolvimento" : "Dica: Capa do Perfil"} 
+                  description={isOptimized ? "A arte oficial da sua capa já está na fila. Em breve você receberá uma versão exclusiva da Hidrogest." : "Por enquanto seu perfil está sem capa. Aguarde que a Hidrogest providenciará uma arte oficial em breve."}
+                  customIcon={isOptimized ? <Clock size={16} className="text-green-600" /> : null}
+                  block
+                >
+                  <div className="w-full relative overflow-hidden group/banner bg-gray-300" style={{ aspectRatio: '10/3', minHeight: '120px' }}>
+                    <img 
+                      src={bgBefore} 
+                      alt="Sem Capa" 
+                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isOptimized ? 'opacity-0' : 'opacity-100'}`}
+                    />
+                    
+                    <img 
+                      src={bgAfter} 
+                      alt="Capa Pendente" 
+                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isOptimized ? 'opacity-100' : 'opacity-0'}`}
+                    />
+                  </div>
+                </Highlight>
+
+                <div className="px-4 sm:px-6 pb-6 relative">
+                  
+                  <div className="relative -mt-16 sm:-mt-20 md:-mt-24 mb-3 z-20 inline-block">
+                    <Highlight 
+                      condition={true} 
+                      isFixed={true} 
+                      hideFixedBorder={true}
+                      position="overlay-avatar-tooltip"
+                      label="Foto Mantida"
+                      description="Utilizei a foto que você enviou. Ela transmite uma imagem séria e profissional, ideal para o seu perfil."
+                    >
+                      <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full border-4 border-white bg-white shadow-lg relative">
+                        <img 
+                          src={photoUrl} 
+                          alt="Foto de perfil Rafael" 
+                          className="w-full h-full object-cover rounded-full"
+                          onError={(e) => { e.target.src = fallbackAvatar }}
+                        />
+                        <div className="absolute inset-0 ring-1 ring-black/10 rounded-full pointer-events-none"></div>
+                      </div>
+                    </Highlight>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div className="max-w-xl w-full">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-1.5">
+                        <Highlight 
+                          condition={!isOptimized || isOptimized} 
+                          isFixed={isOptimized} 
+                          hideFixedBorder={true}
+                          label={isOptimized ? "Nome Visível" : "Visibilidade Oculta"}
+                          description={isOptimized ? "Com o perfil público, seu nome aparecerá nas buscas da rede." : "Atualmente, você só aparece como 'Membro do LinkedIn' para quem não é sua conexão."}
+                        >
+                          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
+                            Rafael Pereira dos Santos
+                          </h1>
+                        </Highlight>
+                        {isOptimized && <CopyInlineButton text={copyTexts.nome} label="Copiar Nome" onCopy={handleCopyText} />}
+                      </div>
+
+                      <div className="text-[16px] sm:text-[17px] text-gray-700 leading-snug mt-2">
+                        <Highlight 
+                          condition={!isOptimized || isOptimized} 
+                          isFixed={isOptimized} 
+                          label={isOptimized ? "Título Atualizado" : "Dica de Título"}
+                          description={isOptimized ? "Adicionei a sua formação como Técnico em Meio Ambiente e a qualificação de Marinheiro Fluvial para fortalecer sua autoridade técnica." : "Quando for abrir o perfil, lembre-se de colocar o seu cargo atual e suas qualificações principais."}
+                          block
+                        >
+                          <span className={`block transition-all ${isOptimized ? 'font-medium text-gray-800' : ''}`}>
+                            {isOptimized 
+                              ? "Técnico em Meio Ambiente | Técnico Hidrometrista Júnior | Marinheiro Fluvial" 
+                              : "Profissional Oculto"}
+                          </span>
+                        </Highlight>
+                      </div>
+
+                      <div className="text-gray-500 text-sm mt-3 flex items-center gap-1.5 font-medium">
+                        <MapPin size={16} className="text-gray-400" /> Belo Horizonte, Minas Gerais, Brasil
+                      </div>
+                      
+                      <div className="mt-3 flex flex-wrap gap-3 sm:gap-4 text-sm font-semibold text-[#0a66c2] inline-flex">
+                        <span className="flex items-center gap-1.5 hover:underline cursor-pointer"><Mail size={16} /> rafaelpsophia14@gmail.com</span>
+                        <span className="flex items-center gap-1.5 hover:underline cursor-pointer"><Phone size={16} /> (31) 3291-8866</span>
+                      </div>
+                    </div>
+
+                    <div className="hidden md:flex flex-col gap-3 items-start sm:items-end w-56 shrink-0 mt-2">
+                      <div className="flex items-center gap-3 w-full justify-end group cursor-pointer">
+                        <span className="text-[15px] font-semibold text-gray-900 text-right leading-tight group-hover:text-[#0a66c2] transition-colors">HIDROGEST ENGENHARIA</span>
+                        <img src={logoHidrogest} alt="Hidrogest" className="w-10 h-10 shrink-0 object-contain bg-white rounded-lg shadow-sm border border-gray-100 group-hover:scale-105 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white p-4 sm:p-6 hover:shadow-lg transition-all duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+                  <h2 className="text-xl font-bold text-gray-900">Sobre</h2>
+                  {isOptimized && <CopyInlineButton text={copyTexts.sobre} label="Copiar Resumo" onCopy={handleCopyText} />}
+                </div>
+                <div className="text-[15px] text-gray-800 space-y-4 leading-relaxed">
+                  <Highlight 
+                    condition={!isOptimized || isOptimized} 
+                    isFixed={isOptimized} 
+                    label={isOptimized ? "Resumo Inserido" : "Oportunidade: Criar um Resumo"}
+                    description={isOptimized ? "Criei um texto que conta a sua evolução dentro da empresa, destaca sua habilitação marítima e cita os projetos importantes em que você atua." : "Como o perfil está privado, essa área não está visível. Ter um bom resumo é fundamental."}
+                    block
+                  >
+                    {isOptimized ? (
+                      <div className="space-y-3 whitespace-pre-wrap">
+                        {copyTexts.sobre}
+                      </div>
+                    ) : (
+                      <p className="text-gray-400 italic">Resumo oculto por configurações de privacidade.</p>
+                    )}
+                  </Highlight>
+                </div>
+              </div>
+
+              <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white p-4 sm:p-6 hover:shadow-lg transition-all duration-300">
+                <h2 className="text-xl font-bold text-gray-900 mb-8">Experiência</h2>
+
+                {/* HIDROGEST */}
+                <div className="flex gap-3 sm:gap-4 group/exp">
+                  <img src={logoHidrogest} alt="Hidrogest" className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 object-contain bg-white shadow-md rounded-lg border border-gray-100 mt-1 z-10 relative group-hover/exp:scale-105 transition-transform" />
+                  <div className="flex-1 pb-8 relative">
+                    <div className="absolute top-12 bottom-0 left-[-26px] sm:left-[-38px] w-0.5 bg-gradient-to-b from-gray-200 to-gray-100"></div>
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div>
+                        <Highlight 
+                          condition={!isOptimized || isOptimized} 
+                          isFixed={isOptimized} 
+                          hideFixedBorder={true}
+                          label={isOptimized ? "Cargo Atual" : "Atualização Necessária"}
+                          description={isOptimized ? "Destaquei a sua promoção para Técnico Hidrometrista Júnior." : "Quando tornar público, garanta que seu cargo reflita a sua promoção recente."}
+                        >
+                          <h3 className="text-[16px] sm:text-[17px] font-bold text-gray-900">
+                            {isOptimized ? "Técnico Hidrometrista Júnior" : "Cargo Oculto"}
+                          </h3>
+                        </Highlight>
+                        <div className="text-[14px] sm:text-[15px] text-gray-900 font-medium mt-0.5">HIDROGEST ENGENHARIA E CONSULTORIA</div>
+                      </div>
+                      {isOptimized && <CopyInlineButton text={copyTexts.experienciaHidrogest} onCopy={handleCopyText} />}
+                    </div>
+                    
+                    <div className="text-[14px] sm:text-[15px] text-gray-500 mt-1">
+                      mai de 2024 - o momento
+                    </div>
+                    <div className="text-[14px] sm:text-[15px] text-gray-500">Belo Horizonte, Minas Gerais, Brasil</div>
+                    
+                    <div className="mt-4 text-[14px] sm:text-[15px] text-gray-800 leading-relaxed space-y-3">
+                      <Highlight 
+                        condition={!isOptimized || isOptimized} 
+                        isFixed={isOptimized} 
+                        hideFixedBorder={true}
+                        label={isOptimized ? "Projetos e Evolução" : "Dica: Descrever Atividades"}
+                        description={isOptimized ? "Listei sua participação nos projetos da Vale e Samarco e mostrei o seu histórico de crescimento (de Auxiliar a Técnico)." : "É importante detalhar as atividades que você realiza em campo."}
+                      >
+                        {isOptimized ? (
+                          <div className="whitespace-pre-wrap">{copyTexts.experienciaHidrogest}</div>
+                        ) : (
+                          <p className="text-gray-400 italic">Detalhes da experiência não visíveis.</p>
+                        )}
+                      </Highlight>
+                    </div>
+                  </div>
+                </div>
+
+                {/* COMISA */}
+                {isOptimized && (
+                  <div className="flex gap-3 sm:gap-4 mt-2 group/exp">
+                    <img src={logoComisa} alt="Mineração Comisa" className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 object-contain bg-white shadow-md rounded-lg border border-gray-100 p-1 mt-1 z-10 relative group-hover/exp:scale-105 transition-transform" />
+                    <div className="flex-1 pb-2 relative">
+                      
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                        <div>
+                          <h3 className="text-[16px] sm:text-[17px] font-bold text-gray-900">Auxiliar de Laboratório</h3>
+                          <div className="text-[14px] sm:text-[15px] text-gray-900 font-medium mt-0.5">Mineração Comisa</div>
+                        </div>
+                        <CopyInlineButton text={copyTexts.experienciaComisa} label="Copiar Comisa" onCopy={handleCopyText} />
+                      </div>
+
+                      <div className="text-[14px] sm:text-[15px] text-gray-500 mt-1">abr de 2022 - abr de 2024 · 2 anos</div>
+                      <div className="text-[14px] sm:text-[15px] text-gray-500">Brumadinho, Minas Gerais, Brasil</div>
+                      
+                      <div className="mt-4 text-[14px] sm:text-[15px] text-gray-800 leading-relaxed space-y-3">
+                        <p>Suporte técnico e operacional em atividades laboratoriais.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {isOptimized && (
+                <>
+                  <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white p-4 sm:p-6 hover:shadow-lg transition-all duration-300">
+                    <h2 className="text-xl font-bold text-gray-900 mb-8">Formação Acadêmica</h2>
+
+                    <div className="flex gap-3 sm:gap-4 group/exp">
+                      <img src={logoIETAAM} alt="IETAAM" className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 object-contain bg-white shadow-md rounded-lg border border-gray-100 p-1 mt-1 z-10 relative group-hover/exp:scale-105 transition-transform" />
+                      <div className="flex-1 pb-2 relative">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                          <div>
+                            <h3 className="text-[16px] sm:text-[17px] font-bold text-gray-900">
+                              Técnico em Meio Ambiente
+                            </h3>
+                            <div className="text-[14px] sm:text-[15px] text-gray-900 font-medium mt-0.5">Instituto de Educação Tecnológica Avançada da Amazônia (IETAAM)</div>
+                          </div>
+                        </div>
+                        <div className="text-[14px] sm:text-[15px] text-gray-500 mt-1">
+                          Concluído em Maio de 2025
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white p-4 sm:p-6 hover:shadow-lg transition-all duration-300">
+                    <h2 className="text-xl font-bold text-gray-900 mb-6">Competências Sugeridas</h2>
+                    <div className="flex flex-wrap gap-2.5">
+                      {["Hidrometria", "Sedimentometria", "Telemetria", "Perfilador Acústico Doppler (ADCP)", "Recuperação Ambiental", "Trabalho em Equipe", "Navegação (CIR)", "Rotinas de Laboratório"].map(comp => (
+                        <span key={comp} className="bg-gradient-to-br from-blue-50 to-indigo-50/50 text-[#0B3B59] px-4 py-1.5 rounded-full text-sm font-bold border border-blue-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">{comp}</span>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+              
+            </div>
+          </div>
+
+          {showCopyModal && (
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+              <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col border border-white">
+                
+                <div className="sticky top-0 bg-white/90 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
+                  <h2 className="text-xl font-bold text-[#0B3B59] flex items-center gap-2">
+                    <CopyIcon size={20} className="text-[#0a66c2]" /> Textos Prontos (Rafael)
+                  </h2>
+                  <button onClick={() => setShowCopyModal(false)} className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-all">
+                    <XCircle size={24} />
+                  </button>
+                </div>
+
+                <div className="p-6 space-y-6">
+                  <p className="text-sm text-gray-600 font-medium">Oi Rafael! Quando você tornar seu perfil público, aproveite para copiar os textos abaixo:</p>
+                  
+                  <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 relative group">
+                    <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Título Profissional</h3>
+                    <p className="text-gray-800 bg-white p-3 rounded-lg border border-gray-200 shadow-sm font-medium">{copyTexts.titulo}</p>
+                    <button onClick={() => handleCopyText(copyTexts.titulo)} className="mt-3 text-sm font-bold text-[#0a66c2] hover:text-[#084e96] flex items-center gap-1 transition-all">
+                      <CopyIcon size={16} /> Copiar Título
+                    </button>
+                  </div>
+
+                  <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 relative group">
+                    <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Resumo (Sobre)</h3>
+                    <p className="text-gray-800 bg-white p-3 rounded-lg border border-gray-200 shadow-sm whitespace-pre-wrap">{copyTexts.sobre}</p>
+                    <button onClick={() => handleCopyText(copyTexts.sobre)} className="mt-3 text-sm font-bold text-[#0a66c2] hover:text-[#084e96] flex items-center gap-1 transition-all">
+                      <CopyIcon size={16} /> Copiar Sobre
+                    </button>
+                  </div>
+
+                  <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 relative group">
+                    <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Experiência (Hidrogest)</h3>
+                    <p className="text-gray-800 bg-white p-3 rounded-lg border border-gray-200 shadow-sm whitespace-pre-wrap">{copyTexts.experienciaHidrogest}</p>
+                    <button onClick={() => handleCopyText(copyTexts.experienciaHidrogest)} className="mt-3 text-sm font-bold text-[#0a66c2] hover:text-[#084e96] flex items-center gap-1 transition-all">
+                      <CopyIcon size={16} /> Copiar Experiência
+                    </button>
+                  </div>
+
+                  <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 relative group">
+                    <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Experiência Anterior (Comisa)</h3>
+                    <p className="text-gray-800 bg-white p-3 rounded-lg border border-gray-200 shadow-sm whitespace-pre-wrap">{copyTexts.experienciaComisa}</p>
+                    <button onClick={() => handleCopyText(copyTexts.experienciaComisa)} className="mt-3 text-sm font-bold text-[#0a66c2] hover:text-[#084e96] flex items-center gap-1 transition-all">
+                      <CopyIcon size={16} /> Copiar Experiência
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
