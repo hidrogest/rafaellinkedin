@@ -25,7 +25,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
 
     // --- Ícones (SVGs) ---
     const CheckCircle2 = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
@@ -43,6 +43,8 @@
     const Lock = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
     const Globe = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
     const Clock = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+    const Maximize = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>;
+    const Eye = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
 
     // --- Componentes Auxiliares ---
     const CopyInlineButton = ({ text, label = "Copiar", onCopy }) => (
@@ -132,14 +134,67 @@
       );
     };
 
+    // --- Componente Slider Antes e Depois ---
+    const ImageComparison = ({ before, after }) => {
+      const [pos, setPos] = useState(50);
+      const containerRef = useRef(null);
+      const [isDragging, setIsDragging] = useState(false);
+
+      const handleMove = (e) => {
+        if (!isDragging && e.type === 'mousemove') return;
+        const container = containerRef.current;
+        if (!container) return;
+        
+        const rect = container.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let x = clientX - rect.left;
+        x = Math.max(0, Math.min(x, rect.width));
+        setPos((x / rect.width) * 100);
+      };
+
+      return (
+        <div 
+          ref={containerRef}
+          className="relative w-full h-full select-none touch-none group/slider bg-gray-100"
+          onMouseDown={(e) => { setIsDragging(true); handleMove(e); }}
+          onMouseUp={() => setIsDragging(false)}
+          onMouseLeave={() => setIsDragging(false)}
+          onMouseMove={handleMove}
+          onTouchStart={(e) => { setIsDragging(true); handleMove(e); }}
+          onTouchEnd={() => setIsDragging(false)}
+          onTouchMove={handleMove}
+        >
+          {/* AFTER (Fundo) */}
+          <img src={after} className="absolute inset-0 w-full h-full object-cover pointer-events-none" draggable="false" />
+          
+          {/* BEFORE (Frente, recortado dinamicamente) */}
+          <img src={before} className="absolute inset-0 w-full h-full object-cover pointer-events-none" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} draggable="false" />
+          
+          {/* LINHA E ARRASTADOR */}
+          <div className="absolute top-0 bottom-0 w-1.5 bg-white/95 backdrop-blur-sm cursor-ew-resize shadow-[0_0_15px_rgba(0,0,0,0.4)]" style={{ left: `calc(${pos}% - 3px)` }}>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-[0_6px_15px_rgba(0,0,0,0.3)] flex items-center justify-center border border-gray-100 transition-transform group-hover/slider:scale-110">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0a66c2" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l4-4-4-4M9 6l-4 4 4 4"/></svg>
+            </div>
+          </div>
+          
+          {/* ETIQUETAS */}
+          <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded pointer-events-none opacity-0 group-hover/slider:opacity-100 transition-opacity duration-300">Original</div>
+          <div className="absolute top-4 right-4 bg-[#0a66c2]/90 backdrop-blur-md text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded pointer-events-none opacity-0 group-hover/slider:opacity-100 transition-opacity duration-300">Edição</div>
+        </div>
+      );
+    };
+
     function App() {
       const [isOptimized, setIsOptimized] = useState(false);
       const [animateProgress, setAnimateProgress] = useState(false);
       const [showCopyModal, setShowCopyModal] = useState(false);
       const [toastMsg, setToastMsg] = useState("");
+      const [showPhotoModal, setShowPhotoModal] = useState(false);
 
       // --- DADOS DO RAFAEL ---
-      const photoUrl = "https://drive.google.com/thumbnail?id=1Y1Ru0JtSiboLt-7WHKgzBMO0nbDAB-Py&sz=w800";
+      const imgBefore = "https://drive.google.com/thumbnail?id=1Y1Ru0JtSiboLt-7WHKgzBMO0nbDAB-Py&sz=w800";
+      const imgAfter = "https://drive.google.com/thumbnail?id=1c2_20EH6Hvx86wPhK1Ym5LXPbUH2WOLu&sz=w800";
+      const imgAfterDownload = "https://drive.google.com/uc?export=download&id=1c2_20EH6Hvx86wPhK1Ym5LXPbUH2WOLu";
       const fallbackAvatar = "https://ui-avatars.com/api/?name=Rafael+Pereira&size=200&background=0a66c2&color=fff";
       
       const bgBefore = "https://placehold.co/1200x360/e2e8f0/64748b?text=Sem+imagem+de+capa";
@@ -185,9 +240,10 @@
 
       const checklistItems = [
         { id: 1, text: "Tornar o Perfil Público (Mostrar sua força na Hidrogest)", done: isOptimized },
-        { id: 2, text: "Adicionar a Capa Oficial da Empresa", done: isOptimized },
-        { id: 3, text: "Destacar a evolução de Auxiliar para Técnico", done: isOptimized },
-        { id: 4, text: "Valorizar a CIR (Marinheiro Fluvial)", done: isOptimized },
+        { id: 2, text: "Melhoria e Enquadramento da Foto de Perfil", done: isOptimized },
+        { id: 3, text: "Adicionar a Capa Oficial da Empresa", done: isOptimized },
+        { id: 4, text: "Destacar a evolução de Auxiliar para Técnico", done: isOptimized },
+        { id: 5, text: "Valorizar a CIR (Marinheiro Fluvial)", done: isOptimized },
       ];
 
       return (
@@ -303,7 +359,7 @@
                   <p className="font-bold mb-1">{isOptimized ? 'Excelente Avanço!' : 'Oi Rafael, tudo bem?'}</p>
                   <p className="leading-relaxed">
                     {isOptimized 
-                      ? 'Ao tornar seu perfil público, eu adicionei a nova capa da empresa e destaquei sua promoção para Técnico e sua habilitação de Marinheiro Fluvial. Ficou excelente e mostra muito bem a sua importância na Hidrogest!' 
+                      ? 'Ao tornar seu perfil público, eu editei sua foto (centralizando e clareando o fundo), adicionei a nova capa da empresa e destaquei sua promoção para Técnico e sua habilitação de Marinheiro Fluvial. Ficou excelente e representa muito bem a Hidrogest!' 
                       : 'Vi que o seu perfil no LinkedIn está privado. Isso significa que as pessoas não conseguem ver o ótimo trabalho que você faz com a gente. Clique em "Desbloqueado" lá em cima para ver as dicas que preparei!'}
                   </p>
                 </div>
@@ -395,17 +451,41 @@
                       isFixed={true} 
                       hideFixedBorder={true}
                       position="overlay-avatar-tooltip"
-                      label="Foto Mantida"
-                      description="Utilizei a foto que você enviou. Ela transmite uma imagem séria e profissional, ideal para o seu perfil."
+                      label="Foto Otimizada"
+                      description="Dei uma leve editada na sua foto original: centralizei o rosto, melhorei a iluminação e deixei o fundo mais claro. Isso dá ainda mais clareza para a sua imagem profissional."
                     >
-                      <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full border-4 border-white bg-white shadow-lg relative">
+                      <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full border-4 border-white bg-white shadow-lg relative group/photo">
                         <img 
-                          src={photoUrl} 
+                          src={isOptimized ? imgAfter : imgBefore} 
                           alt="Foto de perfil Rafael" 
-                          className="w-full h-full object-cover rounded-full"
+                          className="w-full h-full object-cover rounded-full transition-all duration-700"
                           onError={(e) => { e.target.src = fallbackAvatar }}
                         />
                         <div className="absolute inset-0 ring-1 ring-black/10 rounded-full pointer-events-none"></div>
+
+                        <div className={`absolute bottom-[-15px] left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:-right-4 sm:bottom-2 transition-all duration-500 z-30 ${isOptimized ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'}`}>
+                          <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-xl p-1.5 rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.15)] border border-gray-100">
+                            
+                            <button 
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowPhotoModal(true); }}
+                              className="flex items-center justify-center text-[#0B3B59] hover:text-[#0a66c2] hover:bg-blue-50 w-8 h-8 sm:w-9 sm:h-9 rounded-full transition-all"
+                              title="Comparar fotos"
+                            >
+                              <Maximize size={16} />
+                            </button>
+                            
+                            <a 
+                              href={imgAfterDownload} 
+                              download="Foto_Rafael_Editada.jpg"
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="flex items-center justify-center text-white bg-gradient-to-br from-[#0a66c2] to-[#084e96] hover:scale-105 w-8 h-8 sm:w-9 sm:h-9 rounded-full shadow-md transition-all"
+                              title="Baixar foto atualizada"
+                            >
+                              <DownloadIcon size={14} />
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     </Highlight>
                   </div>
@@ -646,6 +726,54 @@
                     <button onClick={() => handleCopyText(copyTexts.experienciaComisa)} className="mt-3 text-sm font-bold text-[#0a66c2] hover:text-[#084e96] flex items-center gap-1 transition-all">
                       <CopyIcon size={16} /> Copiar Experiência
                     </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL COMPARAÇÃO DE FOTOS */}
+          {showPhotoModal && (
+            <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[110] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+              <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+                
+                {/* Header */}
+                <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/80">
+                  <h3 className="font-bold text-[17px] text-[#0B3B59] flex items-center gap-2">
+                    <Eye size={20} className="text-[#0a66c2]" /> Antes e Depois
+                  </h3>
+                  <button onClick={() => setShowPhotoModal(false)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">
+                    <XIcon size={20} />
+                  </button>
+                </div>
+                
+                {/* Content */}
+                <div className="p-4 sm:p-8 flex flex-col items-center">
+                  
+                  {/* Slider Container */}
+                  <div className="relative w-full max-w-[280px] sm:max-w-[340px] aspect-square rounded-full border-[8px] border-white shadow-[0_10px_40px_rgba(0,0,0,0.15)] overflow-hidden bg-gray-100">
+                    <ImageComparison 
+                      before={imgBefore} 
+                      after={imgAfter} 
+                    />
+                  </div>
+                  
+                  <p className="text-gray-500 text-sm mt-8 text-center max-w-sm leading-relaxed">
+                    Arraste a linha central para visualizar a diferença. Centralizei o seu rosto, clareei o fundo e melhorei a iluminação para dar ainda mais profissionalismo à sua imagem.
+                  </p>
+
+                  <div className="mt-6 flex justify-center w-full">
+                     <a 
+                        href={imgAfterDownload} 
+                        download="Foto_Rafael_Editada.jpg"
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center gap-2 bg-gradient-to-r from-[#0a66c2] to-[#084e96] text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-blue-900/20 transition-all hover:scale-105"
+                      >
+                        <DownloadIcon size={16} />
+                        Baixar Foto Editada
+                      </a>
                   </div>
 
                 </div>
