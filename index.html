@@ -36,6 +36,7 @@
     const Info = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
     const ShieldCheck = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>;
     const XCircle = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>;
+    const DownloadIcon = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
     const CopyIcon = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>;
     const XIcon = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
     const ArrowLeft = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>;
@@ -142,7 +143,8 @@
       const fallbackAvatar = "https://ui-avatars.com/api/?name=Rafael+Pereira&size=200&background=0a66c2&color=fff";
       
       const bgBefore = "https://placehold.co/1200x360/e2e8f0/64748b?text=Sem+imagem+de+capa";
-      const bgAfter = "https://placehold.co/1200x360/0B3B59/ffffff?text=Capa+Institucional+(Em+Desenvolvimento)";
+      const bgAfter = "https://drive.google.com/thumbnail?id=1COZLJc_fEw-rOXiNqwyTyft7qWocTcst&sz=w1200";
+      const bgAfterDownload = "https://drive.google.com/uc?export=download&id=1COZLJc_fEw-rOXiNqwyTyft7qWocTcst";
 
       const logoHidrogest = "https://drive.google.com/thumbnail?id=1aWt-ZBZIvBdviJ3hoYVExMUoQlFEt15O&sz=w200";
       const logoComisa = "https://ui-avatars.com/api/?name=Mineração+Comisa&size=200&background=ea580c&color=fff";
@@ -182,9 +184,9 @@
       };
 
       const checklistItems = [
-        { id: 1, text: "Tornar o Perfil Público (Desbloquear visualização)", done: isOptimized },
-        { id: 2, text: "Destacar a evolução de Auxiliar para Técnico", done: isOptimized },
-        { id: 3, text: "Adicionar Formação (Técnico em Meio Ambiente)", done: isOptimized },
+        { id: 1, text: "Tornar o Perfil Público (Mostrar sua força na Hidrogest)", done: isOptimized },
+        { id: 2, text: "Adicionar a Capa Oficial da Empresa", done: isOptimized },
+        { id: 3, text: "Destacar a evolução de Auxiliar para Técnico", done: isOptimized },
         { id: 4, text: "Valorizar a CIR (Marinheiro Fluvial)", done: isOptimized },
       ];
 
@@ -298,11 +300,11 @@
                 <div className={`mt-6 p-4 rounded-xl text-sm transition-all duration-500 shadow-sm ${
                   isOptimized ? 'bg-gradient-to-br from-green-50 to-emerald-50/50 border border-green-200/50 text-green-800' : 'bg-gradient-to-br from-gray-100 to-gray-50/50 border border-gray-200/50 text-gray-800'
                 }`}>
-                  <p className="font-bold mb-1">{isOptimized ? 'Seu Perfil está Pronto!' : 'Oi Rafael, tudo bem?'}</p>
+                  <p className="font-bold mb-1">{isOptimized ? 'Excelente Avanço!' : 'Oi Rafael, tudo bem?'}</p>
                   <p className="leading-relaxed">
                     {isOptimized 
-                      ? 'Ao tornar seu perfil público, adicionei a sua promoção para Técnico e destaquei sua formação e sua habilitação de Marinheiro Fluvial. Você tem uma ótima trajetória para mostrar!' 
-                      : 'Vi que o seu perfil no LinkedIn está privado. Isso significa que as pessoas não conseguem ver suas qualificações. Clique em "Desbloqueado" lá em cima para ver as dicas que preparei!'}
+                      ? 'Ao tornar seu perfil público, eu adicionei a nova capa da empresa e destaquei sua promoção para Técnico e sua habilitação de Marinheiro Fluvial. Ficou excelente e mostra muito bem a sua importância na Hidrogest!' 
+                      : 'Vi que o seu perfil no LinkedIn está privado. Isso significa que as pessoas não conseguem ver o ótimo trabalho que você faz com a gente. Clique em "Desbloqueado" lá em cima para ver as dicas que preparei!'}
                   </p>
                 </div>
 
@@ -334,7 +336,7 @@
                         <Lock size={32} />
                       </div>
                       <h2 className="text-xl font-bold text-gray-900 mb-2">Este perfil é privado</h2>
-                      <p className="text-gray-500 text-sm mb-6">Rafael configurou o perfil para não ser visto por pessoas fora da sua rede. Os recrutadores e a Hidrogest não conseguem ver suas qualificações.</p>
+                      <p className="text-gray-500 text-sm mb-6">Vi que o seu perfil está configurado como privado. Isso significa que as pessoas fora da sua rede não conseguem ver suas qualificações, o que dificulta mostrar o seu excelente trabalho representando a Hidrogest.</p>
                       <button 
                         onClick={() => setIsOptimized(true)}
                         className="bg-[#0a66c2] text-white px-6 py-2 rounded-full font-bold hover:bg-[#084e96] transition-colors"
@@ -350,9 +352,9 @@
                   isFixed={isOptimized} 
                   hideFixedBorder={true}
                   position="overlay-top-left"
-                  label={isOptimized ? "Capa em Desenvolvimento" : "Dica: Capa do Perfil"} 
-                  description={isOptimized ? "A arte oficial da sua capa já está na fila. Em breve você receberá uma versão exclusiva da Hidrogest." : "Por enquanto seu perfil está sem capa. Aguarde que a Hidrogest providenciará uma arte oficial em breve."}
-                  customIcon={isOptimized ? <Clock size={16} className="text-green-600" /> : null}
+                  label={isOptimized ? "Capa Adicionada" : "Dica: Capa do Perfil"} 
+                  description={isOptimized ? "Eu já preparei a capa oficial da Hidrogest para você! É só baixar no botão ao lado e colocar no seu perfil." : "Por enquanto seu perfil está sem capa. Quando desbloquear, vou te passar a capa oficial da empresa."}
+                  customIcon={isOptimized ? <CheckCircle2 size={16} className="text-green-600" /> : null}
                   block
                 >
                   <div className="w-full relative overflow-hidden group/banner bg-gray-300" style={{ aspectRatio: '10/3', minHeight: '120px' }}>
@@ -364,9 +366,24 @@
                     
                     <img 
                       src={bgAfter} 
-                      alt="Capa Pendente" 
+                      alt="Capa Hidrogest" 
                       className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isOptimized ? 'opacity-100' : 'opacity-0'}`}
                     />
+
+                    <div className={`absolute top-3 right-3 sm:top-4 sm:right-4 transition-all duration-500 z-10 ${isOptimized ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+                      <a 
+                        href={bgAfterDownload} 
+                        download="Capa_Rafael_Hidrogest.png"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 sm:gap-2 bg-white/95 hover:bg-white text-[#0B3B59] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-xs sm:text-sm shadow-lg transition-all border border-transparent hover:border-[#0B3B59] hover:scale-105"
+                        title="Baixar capa"
+                      >
+                        <DownloadIcon size={16} />
+                        <span className="hidden sm:inline">Baixar Capa</span>
+                        <span className="sm:hidden">Baixar</span>
+                      </a>
+                    </div>
                   </div>
                 </Highlight>
 
@@ -401,7 +418,7 @@
                           isFixed={isOptimized} 
                           hideFixedBorder={true}
                           label={isOptimized ? "Nome Visível" : "Visibilidade Oculta"}
-                          description={isOptimized ? "Com o perfil público, seu nome aparecerá nas buscas da rede." : "Atualmente, você só aparece como 'Membro do LinkedIn' para quem não é sua conexão."}
+                          description={isOptimized ? "Com o perfil público, seu nome aparecerá nas buscas e você representará muito bem a Hidrogest na rede." : "Atualmente, você só aparece como 'Membro do LinkedIn' para quem não é sua conexão."}
                         >
                           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
                             Rafael Pereira dos Santos
@@ -456,7 +473,7 @@
                     condition={!isOptimized || isOptimized} 
                     isFixed={isOptimized} 
                     label={isOptimized ? "Resumo Inserido" : "Oportunidade: Criar um Resumo"}
-                    description={isOptimized ? "Criei um texto que conta a sua evolução dentro da empresa, destaca sua habilitação marítima e cita os projetos importantes em que você atua." : "Como o perfil está privado, essa área não está visível. Ter um bom resumo é fundamental."}
+                    description={isOptimized ? "Eu criei um texto simples e direto que conta a sua evolução dentro da empresa, destaca sua habilitação marítima e cita os projetos super importantes em que você atua." : "Como o perfil está privado, essa área não está visível. Ter um bom resumo é fundamental para mostrar sua experiência."}
                     block
                   >
                     {isOptimized ? (
